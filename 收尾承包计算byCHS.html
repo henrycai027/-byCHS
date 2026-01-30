@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>收尾承包计算</title>
+<style>
+body{font-family:Arial;margin:16px;max-width:1100px}
+.card{border:1px solid #ddd;border-radius:10px;padding:12px;margin:12px 0}
+.projects{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.proj{border:1px solid #eee;border-radius:8px;padding:8px;display:flex;gap:6px;align-items:center}
+.proj.disabled{opacity:.4}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid #eee;padding:6px;font-size:13px}
+th{background:#fafafa}
+.right{text-align:right}
+</style>
+</head>
+<body>
+
+<h2>收尾承包计算</h2>
+
+<div class="card">
+日期 <input id="date" type="date">
+人名 <input id="person">
+组别 
+<select id="group">
+<option>A</option><option>B</option><option>C</option><option>D</option>
+</select>
+时间类型
+<select id="dayType">
+<option value="auto">自动</option>
+<option value="weekday">周内</option>
+<option value="weekend">周末</option>
+</select>
+</div>
+
+<div class="card">
+<b>项目</b>
+<div id="projectList" class="projects"></div>
+<button onclick="addRecord()">添加记录</button>
+<button onclick="clearData()">清除数据</button>
+<button onclick="exportCSV()">导出CSV</button>
+</div>
+
+<div class="card">
+<b>汇总</b>
+<table>
+<thead><tr><th>日期</th><th>人名</th><th>组别</th><th>打卡</th><th>现金</th></tr></thead>
+<tbody id="out"></tbody>
+</table>
+</div>
+
+<script>
+const PRICES = {
+weekday:{
+A:{
+"踢脚线/沙发缝/抬电磁炉":{p:12.0,c:5.7},
+"擦工作柜+打印机柜+柜体":{p:3.4,c:1.6},
+"擦特定墙面":{p:1.4,c:0.7},
+"擦水柜/冰桶/冰箱（倒垃圾和清面箱）":{p:2.3,c:1.1},
+"补细节":{p:3.4,c:1.6},
+"补杯子":{p:3.6,c:1.7},
+"补筷子/小碗/碟子/勺子":{p:4.7,c:2.2},
+"擦Ipad和充电，擦账单夹":{p:3.9,c:1.8},
+"擦料台":{p:7.1,c:3.3},
+"滤网清洁":{p:3.1,c:1.5}
+},
+B:{
+"踢脚线/沙发缝/抬电磁炉":{p:7.1,c:3.3},
+"擦工作柜+打印机柜+柜体":{p:3.4,c:1.6},
+"擦特定墙面":{p:2.3,c:1.1},
+"补细节":{p:1.3,c:0.6},
+"补杯子":{p:2.1,c:1.0},
+"补筷子/小碗/碟子/勺子":{p:2.3,c:1.1},
+"擦Ipad和充电，擦账单夹":{p:2.3,c:1.1},
+"擦大桌菜架":{p:3.4,c:1.6},
+"滤网清洁":{p:1.8,c:0.9}
+},
+C:{
+"踢脚线/沙发缝/抬电磁炉":{p:10.6,c:5.0},
+"擦工作柜+打印机柜+柜体":{p:1.7,c:0.8},
+"擦水柜/冰桶/冰箱（倒垃圾和清面箱）":{p:2.3,c:1.1},
+"补细节":{p:2.6,c:1.2},
+"补杯子":{p:3.2,c:1.5},
+"补筷子/小碗/碟子/勺子":{p:3.8,c:1.8},
+"擦Ipad和充电，擦账单夹":{p:3.4,c:1.6},
+"擦料台":{p:7.1,c:3.3},
+"滤网清洁":{p:2.8,c:1.3},
+"补高柜":{p:7.1,c:3.3}
+},
+D:{
+"踢脚线/沙发缝/抬电磁炉":{p:8.5,c:4.0},
+"擦工作柜+打印机柜+柜体":{p:2.6,c:1.2},
+"擦特定墙面":{p:1.4,c:0.7},
+"补细节":{p:2.6,c:1.2},
+"补杯子":{p:2.6,c:1.2},
+"补筷子/小碗/碟子/勺子":{p:3.4,c:1.6},
+"擦Ipad和充电，擦账单夹":{p:2.7,c:1.3},
+"宝宝椅清洁":{p:1.7,c:0.8},
+"补冰淇淋+生日车清洁+生日柜整理+墙面+灯牌充电":{p:3.4,c:1.6},
+"滤网清洁":{p:2.2,c:1.0}
+}
+},
+weekend:{
+A:{
+"踢脚线/沙发缝/抬电磁炉":{p:12.0,c:5.7},
+"擦工作柜+打印机柜+柜体":{p:3.4,c:1.6},
+"擦特定墙面":{p:1.4,c:0.7},
+"擦水柜/冰桶/冰箱（倒垃圾和清面箱）":{p:2.8,c:1.3},
+"补细节":{p:5.4,c:2.6},
+"补杯子":{p:6.0,c:2.8},
+"补筷子/小碗/碟子/勺子":{p:8.2,c:3.9},
+"擦Ipad和充电，擦账单夹":{p:3.9,c:1.8},
+"擦料台":{p:7.1,c:3.3},
+"滤网清洁":{p:3.1,c:1.5}
+},
+B:{
+"踢脚线/沙发缝/抬电磁炉":{p:7.1,c:3.3},
+"擦工作柜+打印机柜+柜体":{p:3.4,c:1.6},
+"擦特定墙面":{p:2.8,c:1.3},
+"补细节":{p:2.0,c:1.0},
+"补杯子":{p:3.5,c:1.7},
+"补筷子/小碗/碟子/勺子":{p:4.0,c:1.9},
+"擦Ipad和充电，擦账单夹":{p:2.3,c:1.1},
+"擦大桌菜架":{p:3.4,c:1.6},
+"滤网清洁":{p:1.8,c:0.9}
+},
+C:{
+"踢脚线/沙发缝/抬电磁炉":{p:10.6,c:5.0},
+"擦工作柜+打印机柜+柜体":{p:1.7,c:0.8},
+"擦水柜/冰桶/冰箱（倒垃圾和清面箱）":{p:2.8,c:1.3},
+"补细节":{p:4.1,c:1.9},
+"补杯子":{p:5.3,c:2.5},
+"补筷子/小碗/碟子/勺子":{p:6.7,c:3.2},
+"擦Ipad和充电，擦账单夹":{p:3.4,c:1.6},
+"擦料台":{p:12.0,c:5.7},
+"滤网清洁":{p:2.8,c:1.3},
+"补高柜":{p:9.9,c:4.7}
+},
+D:{
+"踢脚线/沙发缝/抬电磁炉":{p:8.5,c:4.0},
+"擦工作柜+打印机柜+柜体":{p:2.6,c:1.2},
+"擦特定墙面":{p:1.4,c:0.7},
+"补细节":{p:4.1,c:1.9},
+"补杯子":{p:4.3,c:2.0},
+"补筷子/小碗/碟子/勺子":{p:6.0,c:2.8},
+"擦Ipad和充电，擦账单夹":{p:2.7,c:1.3},
+"宝宝椅清洁":{p:2.8,c:1.3},
+"补冰淇淋+生日车清洁+生日柜整理+墙面+灯牌充电":{p:7.1,c:3.3},
+"滤网清洁":{p:2.2,c:1.0}
+}
+}
+};
+
+const $ = id => document.getElementById(id);
+
+// ====== 计量规则（按比例）======
+// 桌子总数（用于：补杯子、滤网清洁、补筷子、踢脚线、补细节、擦Ipad、大桌菜架）
+const TABLE_TOTAL = { A:17, B:10, C:15, D:12 };
+// 工作柜总数（用于：擦工作柜+打印机柜+柜体）
+const CABINET_TOTAL = { A:4, B:4, C:2, D:3 };
+// 料台总数（仅C组：擦料台）
+const STATION_TOTAL_C = 2;
+
+const PER_TABLE_PROJECTS = new Set([
+  "补杯子",
+  "滤网清洁",
+  "补筷子/小碗/碟子/勺子",
+  "踢脚线/沙发缝/抬电磁炉",
+  "补细节",
+  "擦Ipad和充电，擦账单夹",
+  "擦大桌菜架"
+]);
+
+function getTotalUnits(projectName, group) {
+  if (PER_TABLE_PROJECTS.has(projectName)) return TABLE_TOTAL[group] ?? null;
+  if (projectName === "擦工作柜+打印机柜+柜体") return CABINET_TOTAL[group] ?? null;
+  if (projectName === "擦料台" && group === "C") {
+    // 周内C组只有1个料台，改为勾选全额
+    if (timeType() === "weekday") return null;
+    return STATION_TOTAL_C;
+  }
+  return null; // 其他项目：勾选=全额
+}
+
+// ====== 数据持久化 ======
+const STORAGE_KEY = "billing_records_v2_ratio";
+let records = [];
+
+function loadRecords() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    records = raw ? JSON.parse(raw) : [];
+  } catch {
+    records = [];
+  }
+}
+function saveRecords() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); } catch {}
+}
+
+function timeType() {
+  const mode = $("dayType").value;
+  if (mode !== "auto") return mode;
+  const dStr = $("date").value;
+  if (!dStr) return "weekday";
+  const d = new Date(dStr + "T00:00:00");
+  // 周五/六/日 = 周末
+  return [0,5,6].includes(d.getDay()) ? "weekend" : "weekday";
+}
+
+function getAllProjects() {
+  const all = new Set();
+  Object.values(PRICES).forEach(groupObj => {
+    Object.values(groupObj).forEach(projects => {
+      Object.keys(projects).forEach(p => all.add(p));
+    });
+  });
+  return Array.from(all).sort((a,b)=>a.localeCompare(b,"zh-CN"));
+}
+
+function render() {
+  const group = $("group").value;
+  const t = timeType();
+  const list = $("projectList");
+  list.innerHTML = "";
+
+  const allProjects = getAllProjects();
+  allProjects.forEach(p => {
+    const price = PRICES?.[t]?.[group]?.[p]; // undefined = 不做（/）
+    const totalUnits = getTotalUnits(p, group);
+
+    const div = document.createElement("div");
+    div.className = "proj" + (price ? "" : " disabled");
+
+    if (totalUnits) {
+      const input = document.createElement("input");
+      input.type = "number";
+      input.min = "0";
+      input.max = String(totalUnits);
+      input.step = "1";
+      input.value = "0";
+      input.disabled = !price;
+      input.style.width = "70px";
+
+      const label = document.createElement("span");
+      label.textContent = p;
+
+      const hint = document.createElement("span");
+      hint.style.marginLeft = "6px";
+      hint.style.color = "#666";
+      hint.style.fontSize = "12px";
+      hint.textContent = price
+        ? `（填完成数量 / 总数 ${totalUnits}｜全额：打卡 ${price.p} / 现金 ${price.c}）`
+        : `（不做）`;
+
+      div.appendChild(input);
+      div.appendChild(label);
+      div.appendChild(hint);
+    } else {
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.disabled = !price;
+
+      const label = document.createElement("span");
+      label.textContent = p;
+
+      const meta = document.createElement("span");
+      meta.style.marginLeft = "6px";
+      meta.style.color = "#666";
+      meta.style.fontSize = "12px";
+      meta.textContent = price ? `（打卡 ${price.p} / 现金 ${price.c}）` : "（不做）";
+
+      div.appendChild(cb);
+      div.appendChild(label);
+      div.appendChild(meta);
+    }
+
+    list.appendChild(div);
+  });
+}
+
+function clampInt(v, min, max) {
+  const n = Number.parseInt(String(v ?? "0"), 10);
+  if (Number.isNaN(n)) return min;
+  return Math.min(max, Math.max(min, n));
+}
+
+function getSelectedTotal() {
+  const group = $("group").value;
+  const t = timeType();
+  let punch = 0, cash = 0;
+
+  document.querySelectorAll("#projectList .proj").forEach(div => {
+    const name = div.querySelector("span")?.textContent?.trim();
+    if (!name) return;
+
+    const price = PRICES?.[t]?.[group]?.[name];
+    if (!price) return;
+
+    const totalUnits = getTotalUnits(name, group);
+    if (totalUnits) {
+      const input = div.querySelector('input[type="number"]');
+      const done = clampInt(input?.value, 0, totalUnits);
+      if (input) input.value = String(done);
+      if (done <= 0) return;
+
+      const ratio = done / totalUnits;
+      punch += (Number(price.p) || 0) * ratio;
+      cash  += (Number(price.c) || 0) * ratio;
+    } else {
+      const cb = div.querySelector('input[type="checkbox"]');
+      if (!cb || !cb.checked) return;
+      punch += Number(price.p) || 0;
+      cash  += Number(price.c) || 0;
+    }
+  });
+
+  return { punch, cash };
+}
+
+function addRecord() {
+  const date = $("date").value;
+  const person = $("person").value.trim();
+  const group = $("group").value;
+
+  if (!date) return alert("请先选择日期");
+  if (!person) return alert("请填写人名");
+
+  const { punch, cash } = getSelectedTotal();
+  if (punch === 0 && cash === 0) return alert("请至少勾选/填写 1 个项目");
+
+  records.push({ date, person, group, punch, cash, ts: Date.now() });
+  saveRecords();
+  clearSelection();
+  renderOutput();
+}
+
+function clearSelection() {
+  document.querySelectorAll("#projectList input[type=checkbox]").forEach(cb => cb.checked = false);
+  document.querySelectorAll("#projectList input[type=number]").forEach(n => n.value = "0");
+}
+
+function clearData() {
+  if (!confirm("确定清除所有数据吗？")) return;
+  records = [];
+  saveRecords();
+  renderOutput();
+}
+
+function aggregate() {
+  const map = new Map();
+  for (const r of records) {
+    const key = `${r.date}__${r.person}__${r.group}`;
+    const cur = map.get(key) || { date:r.date, person:r.person, group:r.group, punch:0, cash:0 };
+    cur.punch += Number(r.punch) || 0;
+    cur.cash  += Number(r.cash) || 0;
+    map.set(key, cur);
+  }
+  return Array.from(map.values()).sort((a,b)=>(a.date+a.person+a.group).localeCompare(b.date+b.person+b.group,"zh-CN"));
+}
+
+function renderOutput() {
+  const outRows = aggregate();
+  const tb = $("out");
+  tb.innerHTML = "";
+  outRows.forEach(r => {
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      `<td>${r.date}</td>
+       <td>${escapeHTML(r.person)}</td>
+       <td>${r.group}</td>
+       <td class="right">${r.punch.toFixed(2)}</td>
+       <td class="right">${r.cash.toFixed(2)}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function exportCSV() {
+  const outRows = aggregate();
+  if (outRows.length === 0) return alert("没有数据可导出");
+
+  const header = ["日期","人名","组别","打卡金额合计","现金金额合计"];
+  const lines = [header.join(",")].concat(
+    outRows.map(r => [r.date, r.person, r.group, r.punch.toFixed(2), r.cash.toFixed(2)].map(csvCell).join(","))
+  );
+
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "汇总_output.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+function csvCell(x) {
+  const s = String(x ?? "");
+  if (/[,"\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+  return s;
+}
+
+function init() {
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth()+1).padStart(2,"0");
+  const d = String(today.getDate()).padStart(2,"0");
+  $("date").value = `${y}-${m}-${d}`;
+
+  loadRecords();
+  render();
+  renderOutput();
+
+  document.querySelectorAll("input,select").forEach(x => x.addEventListener("change", () => {
+    render();
+  }));
+}
+
+init();
+</script>
+
+
+
+<div style="text-align:center;margin-top:24px;color:#999;font-size:12px;">
+  Haoshen Cai 制作
+</div>
+
+</body>
+</html>
