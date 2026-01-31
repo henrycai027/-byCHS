@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title></title>
+<style>
+/* ===== Apple-like UI (SF + calm colors) ===== */
+:root{
+  --bg:#f5f5f7;
+  --card:#ffffff;
+  --text:#1d1d1f;
+  --muted:#6e6e73;
+  --line:rgba(0,0,0,.10);
+  --accent:#007aff;
+  --danger:#ff3b30;
+  --shadow: 0 10px 26px rgba(0,0,0,.08);
+  --radius:18px;
+
+  --ui-font: 18px;
+  --ui-h1: 26px;
+  --ui-cardtitle: 17px;
+  --ui-small: 12px;
+  --ui-pname: 16px;
+  --ui-table: 15px;
+  --ui-btn: 16px;
+}
+
+html[data-theme="dark"]{
+  --bg:#0b0b0f;
+  --card:#141418;
+  --text:#f5f5f7;
+  --muted:#a1a1aa;
+  --line:rgba(255,255,255,.14);
+  --accent:#0a84ff;
+  --danger:#ff453a;
+  --shadow: 0 10px 26px rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+  line-height:1.5;
+  letter-spacing:.1px;
+  font-size:var(--ui-font);
+}
+
+.container{
+  max-width:none;
+  width:100%;
+  margin:0;
+  padding:18px 14px 46px;
+}
+
+/* cards */
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+  margin:12px 0;
+}
+.card-title{
+  font-size:var(--ui-cardtitle);
+  font-weight:650;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:0 0 10px;
+}
+.small{font-size:var(--ui-small); color:var(--muted)}
+.right{text-align:right}
+.mono{font-variant-numeric: tabular-nums}
+
+/* form */
+label{display:block; font-size:var(--ui-small); color:var(--muted); margin:0 0 6px}
+input,select{
+  width:100%;
+  font-size:var(--ui-font);
+  padding:11px 12px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--text);
+  outline:none;
+}
+html[data-theme="dark"] input, html[data-theme="dark"] select{
+  background:rgba(255,255,255,.04);
+  border-color:var(--line);
+}
+input:focus,select:focus{
+  border-color:rgba(0,122,255,.55);
+  box-shadow:0 0 0 4px rgba(0,122,255,.14);
+}
+
+/* button */
+.actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.actions button, #topControls button{
+  min-height:40px;
+  padding:10px 12px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--text);
+  font-size:var(--ui-btn);
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-primary{
+  background:var(--accent);
+  border-color:rgba(0,122,255,.9);
+  color:#fff;
+}
+.btn-danger{
+  color:var(--danger);
+  border-color:rgba(255,59,48,.35);
+}
+.btn-ghost{
+  background:var(--card);
+}
+.actions button:active, #topControls button:active{transform:translateY(1px)}
+
+/* sticky action bar */
+.stickybar{
+  position:sticky;
+  bottom:0;
+  z-index:50;
+  background:rgba(245,245,247,.84);
+  backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);
+  padding:10px 0;
+  margin-top:12px;
+}
+html[data-theme="dark"] .stickybar{background:rgba(11,11,15,.78)}
+
+/* project list items */
+.proj{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 12px;
+  display:grid;
+  grid-template-columns:108px 1fr;
+  gap:10px;
+}
+.proj.disabled{opacity:.45}
+.proj input[type="number"]{width:108px}
+.proj input[type="checkbox"]{
+  width:22px; height:22px; margin-top:8px; justify-self:center;
+  accent-color:var(--accent);
+}
+.proj .ptext{display:flex; flex-direction:column; gap:4px}
+.proj .pname{font-size:var(--ui-pname); font-weight:650}
+.proj .pmeta{font-size:var(--ui-small); color:var(--muted)}
+
+/* tables */
+.table-wrap{
+  width:100%;
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--card);
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:760px;
+  font-size:var(--ui-table);
+}
+thead th{
+  position:sticky;
+  top:0;
+  background:rgba(245,245,247,.72);
+  backdrop-filter:blur(12px);
+  color:var(--muted);
+  font-size:var(--ui-small);
+  font-weight:650;
+  text-align:left;
+}
+html[data-theme="dark"] thead th{background:rgba(20,20,24,.72)}
+th,td{padding:10px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+td{color:var(--text)}
+.delbtn{
+  background:transparent;
+  border:none;
+  color:var(--danger);
+  font-size:20px;
+  padding:6px 10px;
+  border-radius:12px;
+  cursor:pointer;
+}
+.delbtn:hover{background:rgba(255,59,48,.10)}
+
+/* highlights */
+.hlrow{outline:3px solid rgba(0,122,255,.35); background:rgba(0,122,255,.06) !important;}
+.hlcell{font-weight:700;}
+
+/* daily totals card */
+#dailyTotals{
+  margin-top:10px;
+  padding:12px 12px;
+  border:1px solid rgba(0,122,255,.18);
+  border-radius:16px;
+  background:rgba(0,122,255,.06);
+}
+
+/* summaryOnly single column */
+html.summaryOnly body{overflow:auto !important;}
+@media (min-width: 980px){
+  .summaryOnly .container{display:block !important; height:auto !important; width:100% !important; padding-left:18px; padding-right:18px;}
+  .summaryOnly #leftCol{display:none !important;}
+  .summaryOnly #rightCol{height:auto !important; overflow:visible !important;}
+}
+
+/* ===== 13寸笔记本终极布局（占满屏幕，不偏左） ===== */
+@media (min-width: 1100px){
+  body{
+    margin:0;
+    overflow:hidden;
+  }
+  .container{
+    width:100vw !important;
+    max-width:none !important;
+    margin:0 !important;
+    height:100vh;
+    display:grid !important;
+    /* 13寸最舒服比例：左项目略大，右汇总略小 */
+    grid-template-columns: 1.25fr 1fr;
+    gap:18px;
+    padding-left:18px;
+    padding-right:18px;
+    box-sizing:border-box;
+  }
+  #leftCol{
+    display:block !important;
+    overflow:auto;
+    height: calc(100vh - 32px);
+  }
+  #rightCol{
+    display:block !important;
+    overflow:auto;
+    height: calc(100vh - 32px);
+  }
+  /* 左侧项目三列 */
+  #projectList{
+    display:grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap:14px;
+  }
+  #projectList .proj{
+    margin:0;
+  }
+}
+
+/* 超大屏（外接显示器）稍微收紧一点，避免太散 */
+@media (min-width: 1600px){
+  .container{
+    grid-template-columns: 1.15fr 1fr;
+  }
+}
+
+/* 手机与小屏保持原样 */
+.container{
+    display:block;
+    height:auto;
+    width:100%;
+    padding-left:12px;
+    padding-right:12px;
+  }
+  #leftCol,#rightCol{
+    height:auto;
+    overflow:visible;
+  }
+  #projectList{
+    display:block;
+  }
+}
+
+/* ===== 强制修复：正常模式电脑端满屏双栏（防止跑到最右边/不满屏） ===== */
+@media (min-width: 1100px){
+  html:not(.summaryOnly) body{ overflow:hidden; }
+  html:not(.summaryOnly) .container{
+    width:100vw !important;
+    max-width:none !important;
+    margin:0 !important;
+    height:100vh !important;
+    display:grid !important;
+    grid-template-columns: 1.25fr 1fr !important;
+    gap:18px !important;
+    padding-left:18px !important;
+    padding-right:18px !important;
+    box-sizing:border-box !important;
+  }
+  html:not(.summaryOnly) #leftCol,
+  html:not(.summaryOnly) #rightCol{
+    display:block !important;
+  }
+  html:not(.summaryOnly) #leftCol{ overflow:auto !important; height: calc(100vh - 32px) !important; }
+  html:not(.summaryOnly) #rightCol{ overflow:auto !important; height: calc(100vh - 32px) !important; }
+  html:not(.summaryOnly) #projectList{
+    display:grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap:14px !important;
+  }
+  html:not(.summaryOnly) #projectList .proj{ margin:0 !important; }
+}
+
+
+/* ===== 顶部信息：日期/人名/组别/时间类型 一行排版（人名更宽） ===== */
+.topRow{
+  display:grid;
+  grid-template-columns: 1fr 1.8fr 0.8fr 0.9fr;
+  gap:12px;
+  align-items:end;
+}
+}
+
+/* ===== 13寸电脑：满屏双栏 + 左侧三列项目（最终兜底） ===== */
+@media (min-width: 1100px){
+  html:not(.summaryOnly) body{margin:0; overflow:hidden;}
+  html:not(.summaryOnly) .container{
+    width:100vw !important;
+    max-width:none !important;
+    margin:0 !important;
+    height:100vh !important;
+    display:grid !important;
+    grid-template-columns: 1.25fr 1fr !important;
+    gap:18px !important;
+    padding-left:18px !important;
+    padding-right:18px !important;
+    box-sizing:border-box !important;
+  }
+  html:not(.summaryOnly) #leftCol{display:block !important; overflow:auto !important; height: calc(100vh - 32px) !important;}
+  html:not(.summaryOnly) #rightCol{display:block !important; overflow:auto !important; height: calc(100vh - 32px) !important;}
+  html:not(.summaryOnly) #projectList{
+    display:grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap:14px !important;
+  }
+  html:not(.summaryOnly) #projectList .proj{margin:0 !important;}
+}
+/* 手机/小屏保持单列 */
+.container{display:block; height:auto; width:100%; padding-left:12px; padding-right:12px;}
+  #leftCol,#rightCol{height:auto; overflow:visible;}
+  #projectList{display:block;}
+}
+
+
+/* ===== 电脑端：强制从最左开始占满屏幕（防止整体跑到右边） ===== */
+@media (min-width: 1100px){
+  html:not(.summaryOnly) .container{
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+}
+
+/* ===== 项目：额外金额两格输入（工资/小费） ===== */
+.proj.extra{
+  grid-template-columns: 108px 108px 1fr;
+}
+.proj.extra input[type="number"]{
+  width:108px !important;
+}
+
+
+/* 最终兜底-左侧开始：电脑端绝不偏右 */
+@media (min-width: 1100px){
+  html:not(.summaryOnly) .container{
+    margin:0 !important;
+    left:0 !important;
+    right:0 !important;
+    width:100vw !important;
+    max-width:none !important;
+  }
+}
+
+
+/* ===== 电脑端最终布局兜底：满屏双栏（不全部挤在左边） ===== */
+@media (min-width: 1100px){
+  html:not(.summaryOnly) body{margin:0; overflow:hidden;}
+  html:not(.summaryOnly) .container{
+    width:100vw !important;
+    max-width:none !important;
+    margin:0 !important;
+    height:100vh !important;
+    display:grid !important;
+    grid-template-columns: 1.25fr 1fr !important;
+    gap:18px !important;
+    padding-left:18px !important;
+    padding-right:18px !important;
+    box-sizing:border-box !important;
+  }
+  html:not(.summaryOnly) #leftCol{display:block !important; overflow:auto !important; height: calc(100vh - 32px) !important;}
+  html:not(.summaryOnly) #rightCol{display:block !important; overflow:auto !important; height: calc(100vh - 32px) !important;}
+}
+
+
+
+
+
+
+/* ===== 电脑版布局（无内置滚动条 + 居中占满） ===== */
+body{ overflow:auto; }
+
+.container{
+  width:100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display:grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap:18px;
+  padding:18px;
+  box-sizing:border-box;
+}
+
+/* 两栏不再各自滚动（避免“内置滚动条”观感） */
+#leftCol, #rightCol{
+  height:auto !important;
+  overflow:visible !important;
+}
+
+/* 项目三列 */
+#projectList{
+  display:grid !important;
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap:14px !important;
+}
+#projectList .proj{margin:0 !important;}
+
+
+/* ===== v33 终极强制覆盖：电脑网页观感（无内置滚动条、居中/铺满不偏左） ===== */
+/* 1) 禁止任何“内部滚动容器” */
+html, body{
+  height:auto !important;
+  overflow:auto !important;
+}
+body{ position:static !important; }
+
+/* 2) 容器：取消 fixed/100vh，改为正常文档流 + 居中最大宽度 */
+.container{
+  position:static !important;
+  left:auto !important; right:auto !important; top:auto !important; bottom:auto !important;
+  width:100% !important;
+  max-width: 1600px !important;
+  margin: 0 auto !important;
+  height:auto !important;
+  min-height: 100vh !important;
+  display:grid !important;
+  grid-template-columns: 1.25fr 1fr !important;
+  gap:18px !important;
+  padding:18px !important;
+  box-sizing:border-box !important;
+}
+
+/* 3) 两列内容：强制不滚动、不定高 */
+#leftCol, #rightCol{
+  height:auto !important;
+  max-height:none !important;
+  overflow:visible !important;
+}
+
+/* 4) 项目三列固定 */
+#projectList{
+  display:grid !important;
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap:14px !important;
+}
+#projectList .proj{ margin:0 !important; }
+
+/* 5) 如果屏幕很窄仍保持双栏（你说取消手机版） */
+@media (max-width: 900px){
+  .container{ grid-template-columns: 1fr 1fr !important; }
+  #projectList{ grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+}
+
+
+/* ===== v34：铺满画面（100vw），不居中、不留白 ===== */
+.container{
+  width:100vw !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:18px !important;
+  box-sizing:border-box !important;
+}
+#versionBadge{
+  left:50% !important;
+  transform:translateX(-50%) !important;
+}
+
+
+/* ===== v35 最终强制：真正铺满画面（视觉也铺满） ===== */
+html, body{
+  margin:0 !important;
+  padding:0 !important;
+  width:100% !important;
+  max-width:none !important;
+  overflow-x:hidden !important;
+}
+body{ background: var(--bg) !important; }
+
+.container{
+  width:100vw !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:12px !important;   /* 少量内边距避免贴边 */
+  box-sizing:border-box !important;
+  align-content:start !important;
+}
+
+#leftCol, #rightCol{
+  width:100% !important;
+  min-width:0 !important;
+}
+
+/* 让卡片占满列宽，减少“像手机版居左”的感觉 */
+.card{
+  width:100% !important;
+}
+
+
+
+
+
+
+
+
+/* ===== 项目区：恢复v36风格（v41） ===== */
+#projectList{
+    display:grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap:14px;
+  }
+
+.proj{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 12px;
+  display:grid;
+  grid-template-columns:108px 1fr;
+  gap:10px;
+}
+
+.proj input[type="checkbox"]{
+  width:22px; height:22px; margin-top:8px; justify-self:center;
+  accent-color:var(--accent);
+}
+
+.proj input[type="number"]{width:108px}
+
+.proj .ptext{display:flex; flex-direction:column; gap:4px}
+
+.proj .pname{font-size:var(--ui-pname); font-weight:650}
+
+.proj .pmeta{font-size:var(--ui-small); color:var(--muted)}
+
+.proj.extra{
+  grid-template-columns: 108px 108px 1fr;
+}
+
+#dailyTotals{ display:none !important; }
+
+/* ===== 项目恢复两列（v42） ===== */
+#projectList{
+  display:grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap:14px !important;
+}
+</style>
+</head>
+<body><div class="container"><div id="leftCol">
+<div class="card" id="basicCard">
+<div class="topRow">
+<div>
+<label>日期</label>
+<input id="date" type="date"/>
+</div>
+<div>
+<label>人名</label>
+<input id="person" placeholder="请输入姓名"/>
+</div>
+<div>
+<label>组别</label>
+<select id="group">
+<option>A</option><option>B</option><option>C</option><option>D</option>
+</select>
+</div>
+<div>
+<label>时间类型</label>
+<select id="dayType">
+<option value="auto">自动</option>
+<option value="weekday">周内</option>
+<option value="weekend">周末</option>
+</select>
+</div>
+</div>
+</div>
+<div class="card">
+<b>项目</b>
+<div class="projects" id="projectList"></div>
+<div class="stickybar"><div class="actions"><button class="btn-primary" onclick="addRecord()">添加记录</button>
+<button class="btn-danger" onclick="clearData()">清除数据</button>
+<button class="btn-ghost" onclick="exportCSV()">导出CSV</button></div></div>
+</div>
+
+
+</div><div id="rightCol">
+
+<div class="card" id="summaryCard">
+<div class="card-title" style="justify-content:space-between;gap:10px;flex-wrap:wrap;"><div id="topControls"> <button class="btn-ghost" onclick="setFontPreset('s')" title="小号字体">小</button> <button class="btn-ghost" onclick="setFontPreset('m')" title="中号字体">中</button> <button class="btn-ghost" onclick="setFontPreset('l')" title="大号字体">大</button> <button class="btn-ghost" id="themeBtn" onclick="toggleTheme()" title="夜间模式">夜间</button> <button class="btn-ghost" onclick="openSummaryView()" title="只读汇总视图（适合管理）">只读汇总</button></div> <div>汇总 <span class="small">（可单条删除、可导出）</span></div> <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"> <input id="personSearch" placeholder="搜索人名并定位…" style="width:220px;max-width:70vw;" type="text"> <button class="btn-ghost" onclick="locatePerson()">定位</button> <button class="btn-ghost" onclick="clearPersonSearch()">清除</button> </input></div></div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>日期</th><th>人名</th><th>组别</th>
+<th class="right">工资</th><th class="right">小费</th>
+<th>明细</th><th class="right">×</th>
+</tr>
+</thead>
+<tbody id="out"></tbody>
+</table>
+</div>
+<div style="margin-top:14px">
+<div class="card-title" style="margin-bottom:8px">各组小计</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>组别</th><th class="right">工资合计</th><th class="right">小费合计</th><th class="right">合计</th></tr>
+</thead>
+<tbody id="groupTotalsBody"></tbody>
+<tfoot>
+<tr>
+<th>总计</th>
+<th class="right" id="grandPunch">0.00</th>
+<th class="right" id="grandCash">0.00</th>
+<th class="right" id="grandAll">0.00</th>
+</tr>
+</tfoot>
+</table>
+</div>
+<div id="dailyTotals">
+<span id="dailyLabel">当日总计</span>：
+      工资 <b id="dailyWage">0.00</b> ｜ 小费 <b id="dailyTip">0.00</b> ｜ 合计 <b id="dailyAll">0.00</b>
+</div>
+</div>
+</div>
+
+</div></div><footer>
+  Haoshen Cai 制作</footer><script>
+const PRICES = {
+weekday:{
+A:{
+"踢脚线/沙发缝/抬电磁炉":{p:12.0,c:5.7},
+"擦工作柜+打印机柜+柜体":{p:3.4,c:1.6},
+"擦特定墙面":{p:1.4,c:0.7},
+"擦水柜/冰桶/冰箱（倒垃圾和清面箱）":{p:2.3,c:1.1},
+"补细节":{p:3.4,c:1.6},
+"补杯子":{p:3.6,c:1.7},
+"补筷子/小碗/碟子/勺子":{p:4.7,c:2.2},
+"擦Ipad和充电，擦账单夹":{p:3.9,c:1.8},
+"擦料台":{p:7.1,c:3.3},
+"滤网清洁":{p:3.1,c:1.5}
+},
+B:{
+"踢脚线/沙发缝/抬电磁炉":{p:7.1,c:3.3},
+"擦工作柜+打印机柜+柜体":{p:3.4,c:1.6},
+"擦特定墙面":{p:2.3,c:1.1},
+"补细节":{p:1.3,c:0.6},
+"补杯子":{p:2.1,c:1.0},
+"补筷子/小碗/碟子/勺子":{p:2.3,c:1.1},
+"擦Ipad和充电，擦账单夹":{p:2.3,c:1.1},
+"擦大桌菜架":{p:3.4,c:1.6},
+"滤网清洁":{p:1.8,c:0.9}
+},
+C:{
+"踢脚线/沙发缝/抬电磁炉":{p:10.6,c:5.0},
+"擦工作柜+打印机柜+柜体":{p:1.7,c:0.8},
+"擦水柜/冰桶/冰箱（倒垃圾和清面箱）":{p:2.3,c:1.1},
+"补细节":{p:2.6,c:1.2},
+"补杯子":{p:3.2,c:1.5},
+"补筷子/小碗/碟子/勺子":{p:3.8,c:1.8},
+"擦Ipad和充电，擦账单夹":{p:3.4,c:1.6},
+"擦料台":{p:7.1,c:3.3},
+"滤网清洁":{p:2.8,c:1.3},
+"补高柜":{p:7.1,c:3.3}
+},
+D:{
+"踢脚线/沙发缝/抬电磁炉":{p:8.5,c:4.0},
+"擦工作柜+打印机柜+柜体":{p:2.6,c:1.2},
+"擦特定墙面":{p:1.4,c:0.7},
+"补细节":{p:2.6,c:1.2},
+"补杯子":{p:2.6,c:1.2},
+"补筷子/小碗/碟子/勺子":{p:3.4,c:1.6},
+"擦Ipad和充电，擦账单夹":{p:2.7,c:1.3},
+"宝宝椅清洁":{p:1.7,c:0.8},
+"补冰淇淋+生日车清洁+生日柜整理+墙面+灯牌充电":{p:3.4,c:1.6},
+"滤网清洁":{p:2.2,c:1.0}
+}
+},
+weekend:{
+A:{
+"踢脚线/沙发缝/抬电磁炉":{p:12.0,c:5.7},
+"擦工作柜+打印机柜+柜体":{p:3.4,c:1.6},
+"擦特定墙面":{p:1.4,c:0.7},
+"擦水柜/冰桶/冰箱（倒垃圾和清面箱）":{p:2.8,c:1.3},
+"补细节":{p:5.4,c:2.6},
+"补杯子":{p:6.0,c:2.8},
+"补筷子/小碗/碟子/勺子":{p:8.2,c:3.9},
+"擦Ipad和充电，擦账单夹":{p:3.9,c:1.8},
+"擦料台":{p:7.1,c:3.3},
+"滤网清洁":{p:3.1,c:1.5}
+},
+B:{
+"踢脚线/沙发缝/抬电磁炉":{p:7.1,c:3.3},
+"擦工作柜+打印机柜+柜体":{p:3.4,c:1.6},
+"擦特定墙面":{p:2.8,c:1.3},
+"补细节":{p:2.0,c:1.0},
+"补杯子":{p:3.5,c:1.7},
+"补筷子/小碗/碟子/勺子":{p:4.0,c:1.9},
+"擦Ipad和充电，擦账单夹":{p:2.3,c:1.1},
+"擦大桌菜架":{p:3.4,c:1.6},
+"滤网清洁":{p:1.8,c:0.9}
+},
+C:{
+"踢脚线/沙发缝/抬电磁炉":{p:10.6,c:5.0},
+"擦工作柜+打印机柜+柜体":{p:1.7,c:0.8},
+"擦水柜/冰桶/冰箱（倒垃圾和清面箱）":{p:2.8,c:1.3},
+"补细节":{p:4.1,c:1.9},
+"补杯子":{p:5.3,c:2.5},
+"补筷子/小碗/碟子/勺子":{p:6.7,c:3.2},
+"擦Ipad和充电，擦账单夹":{p:3.4,c:1.6},
+"擦料台":{p:12.0,c:5.7},
+"滤网清洁":{p:2.8,c:1.3},
+"补高柜":{p:9.9,c:4.7}
+},
+D:{
+"踢脚线/沙发缝/抬电磁炉":{p:8.5,c:4.0},
+"擦工作柜+打印机柜+柜体":{p:2.6,c:1.2},
+"擦特定墙面":{p:1.4,c:0.7},
+"补细节":{p:4.1,c:1.9},
+"补杯子":{p:4.3,c:2.0},
+"补筷子/小碗/碟子/勺子":{p:6.0,c:2.8},
+"擦Ipad和充电，擦账单夹":{p:2.7,c:1.3},
+"宝宝椅清洁":{p:2.8,c:1.3},
+"补冰淇淋+生日车清洁+生日柜整理+墙面+灯牌充电":{p:7.1,c:3.3},
+"滤网清洁":{p:2.2,c:1.0}
+}
+}
+};
+
+const $ = id => document.getElementById(id);
+
+// ====== 计量规则（按比例）======
+// 桌子总数（用于：补杯子、滤网清洁、补筷子、踢脚线、补细节、擦Ipad、大桌菜架）
+const TABLE_TOTAL = { A:17, B:10, C:15, D:12 };
+// 工作柜总数（用于：擦工作柜+打印机柜+柜体）
+const CABINET_TOTAL = { A:4, B:4, C:2, D:3 };
+// 料台总数（仅C组：周末擦料台按2个；周内改为勾选全额）
+const STATION_TOTAL_C = 2;
+
+const PER_TABLE_PROJECTS = new Set([
+  "补杯子",
+  "滤网清洁",
+  "补筷子/小碗/碟子/勺子",
+  "踢脚线/沙发缝/抬电磁炉",
+  "补细节",
+  "擦Ipad和充电，擦账单夹",
+  "擦大桌菜架"
+]);
+
+function timeType() {
+  const mode = $("dayType").value;
+  if (mode !== "auto") return mode;
+  const dStr = $("date").value;
+  if (!dStr) return "weekday";
+  const d = new Date(dStr + "T00:00:00");
+  // 周五/六/日 = 周末
+  return [0,5,6].includes(d.getDay()) ? "weekend" : "weekday";
+}
+
+function getTotalUnits(projectName, group) {
+  if (PER_TABLE_PROJECTS.has(projectName)) return TABLE_TOTAL[group] ?? null;
+  if (projectName === "擦工作柜+打印机柜+柜体") return CABINET_TOTAL[group] ?? null;
+  if (projectName === "擦料台" && group === "C") {
+    // 周内C组只有1个料台，改为勾选全额
+    if (timeType() === "weekday") return null;
+    return STATION_TOTAL_C;
+  }
+  return null; // 其他项目：勾选=全额
+}
+
+// ====== 数据持久化 ======
+const STORAGE_KEY = "billing_records_v4_details";
+let records = [];
+
+function loadRecords() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    records = raw ? JSON.parse(raw) : [];
+  } catch {
+    records = [];
+  }
+}
+function saveRecords() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); } catch {}
+}
+
+function getAllProjects() {
+  const all = new Set();
+  Object.values(PRICES).forEach(groupObj => {
+    Object.values(groupObj).forEach(projects => {
+      Object.keys(projects).forEach(p => all.add(p));
+    });
+  });
+  return Array.from(all).sort((a,b)=>a.localeCompare(b,"zh-CN"));
+}
+
+function render() {
+  const group = $("group").value;
+  const t = timeType();
+  const list = $("projectList");
+  list.innerHTML = "";
+
+  const allProjects = getAllProjects();
+  allProjects.forEach(p => {
+    const price = PRICES?.[t]?.[group]?.[p]; // undefined = 不做（/）
+    const totalUnits = getTotalUnits(p, group);
+
+    const div = document.createElement("div");
+    div.className = "proj" + (price ? "" : " disabled");
+
+    if (totalUnits) {
+      // 数量输入（按比例）
+      const input = document.createElement("input");
+      input.type = "number";
+      input.min = "0";
+      input.max = String(totalUnits);
+      input.step = "1";
+      input.value = "0";
+      input.disabled = !price;
+      input.style.width = "70px";
+
+      const ptext = document.createElement("div");
+      ptext.className = "ptext";
+
+      const label = document.createElement("div");
+      label.className = "pname";
+      label.textContent = p;
+
+      const hint = document.createElement("div");
+      hint.className = "pmeta";
+      hint.textContent = price
+        ? `填完成数量 / 总数 ${totalUnits}｜全额：工资 ${price.p} / 小费 ${price.c}`
+        : `不做`;
+
+      ptext.appendChild(label);
+      ptext.appendChild(hint);
+
+      div.appendChild(input);
+      div.appendChild(ptext);
+    } else {
+      // 勾选（全额）
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.disabled = !price;
+
+      const ptext = document.createElement("div");
+      ptext.className = "ptext";
+
+      const label = document.createElement("div");
+      label.className = "pname";
+      label.textContent = p;
+
+      const meta = document.createElement("div");
+      meta.className = "pmeta";
+      meta.textContent = price ? `工资 ${price.p} / 小费 ${price.c}` : "不做";
+
+      ptext.appendChild(label);
+      ptext.appendChild(meta);
+
+      div.appendChild(cb);
+      div.appendChild(ptext);
+    }
+
+    list.appendChild(div);
+  });
+
+  
+  // 额外金额（可填工资/小费）
+  const extraDiv = document.createElement("div");
+  extraDiv.className = "proj extra";
+
+  const extraWage = document.createElement("input");
+  extraWage.type = "number";
+  extraWage.step = "0.01";
+  extraWage.min = "0";
+  extraWage.value = "0";
+  extraWage.id = "extraWage";
+  extraWage.placeholder = "工资";
+
+  const extraTip = document.createElement("input");
+  extraTip.type = "number";
+  extraTip.step = "0.01";
+  extraTip.min = "0";
+  extraTip.value = "0";
+  extraTip.id = "extraTip";
+  extraTip.placeholder = "小费";
+
+  const ptext = document.createElement("div");
+  ptext.className = "ptext";
+
+  const extraLabel = document.createElement("div");
+  extraLabel.className = "pname";
+  extraLabel.textContent = "额外金额";
+
+  const extraHint = document.createElement("div");
+  extraHint.className = "pmeta";
+  extraHint.textContent = "可选：填写额外工资/小费（例如 工资 5，小费 3）";
+
+  ptext.appendChild(extraLabel);
+  ptext.appendChild(extraHint);
+
+  extraDiv.appendChild(extraWage);
+  extraDiv.appendChild(extraTip);
+  extraDiv.appendChild(ptext);
+  list.appendChild(extraDiv);
+}
+
+function clampInt(v, min, max) {
+  const n = Number.parseInt(String(v ?? "0"), 10);
+  if (Number.isNaN(n)) return min;
+  return Math.min(max, Math.max(min, n));
+}
+function clampMoney(v) {
+  const n = Number.parseFloat(String(v ?? "0"));
+  if (Number.isNaN(n) || n < 0) return 0;
+  return n;
+}
+
+function getSelection() {
+  const group = $("group").value;
+  const t = timeType();
+  let wage = 0, tip = 0;
+  const items = []; // {name, qty, kind:'num'|'check', extraTip?:number}
+
+  document.querySelectorAll("#projectList .proj").forEach(div => {
+    const name = (div.querySelector('.pname')?.textContent || div.querySelector('span')?.textContent || '').trim();
+    if (!name) return;
+
+    if (name === "额外金额") {
+      const ew = clampMoney(document.getElementById("extraWage")?.value);
+      const et = clampMoney(document.getElementById("extraTip")?.value);
+      if (ew > 0) wage += ew;
+      if (et > 0) tip  += et;
+      if (ew > 0 || et > 0) items.push({ name:"额外金额", qty:{ wage: ew, tip: et }, kind:"extra2" });
+      return;
+    }
+
+    const price = PRICES?.[t]?.[group]?.[name];
+    if (!price) return;
+
+    const totalUnits = getTotalUnits(name, group);
+    if (totalUnits) {
+      const input = div.querySelector('input[type="number"]');
+      const done = clampInt(input?.value, 0, totalUnits);
+      if (input) input.value = String(done);
+      if (done <= 0) return;
+
+      const ratio = done / totalUnits;
+      wage += (Number(price.p) || 0) * ratio;
+      tip  += (Number(price.c) || 0) * ratio;
+      items.push({ name, qty: done, kind:"num" });
+    } else {
+      const cb = div.querySelector('input[type="checkbox"]');
+      if (!cb || !cb.checked) return;
+
+      wage += Number(price.p) || 0;
+      tip  += Number(price.c) || 0;
+      items.push({ name, qty: 1, kind:"check" });
+    }
+  });
+
+  return { wage, tip, items };
+}
+
+function addRecord() {
+  const date = $("date").value;
+  const person = $("person").value.trim();
+  const group = $("group").value;
+
+  if (!date) return alert("请先选择日期");
+  if (!person) return alert("请填写人名");
+
+  const { wage, tip, items } = getSelection();
+  if ((wage === 0 && tip === 0) || items.length === 0) return alert("请至少勾选/填写 1 个项目");
+
+  records.push({ date, person, group, wage, tip, items, ts: Date.now() });
+  saveRecords();
+  clearSelection();
+  renderOutput();
+}
+
+function clearSelection() {
+  document.querySelectorAll("#projectList input[type=checkbox]").forEach(cb => cb.checked = false);
+  document.querySelectorAll("#projectList input[type=number]").forEach(n => {
+    if (n.id === "extraTip" || n.id === "extraWage") n.value = "0";
+    else n.value = "0";
+  });
+}
+
+function clearData() {
+  if (!confirm("确定清除所有数据吗？")) return;
+  records = [];
+  saveRecords();
+  renderOutput();
+}
+
+function deleteOne(key) {
+  // key: date__person__group
+  const parts = String(key).split("__");
+  if (parts.length !== 3) return;
+  const [date, person, group] = parts;
+  if (!confirm(`确定删除：${date} / ${person} / ${group} 这一条汇总吗？`)) return;
+  records = records.filter(r => !(r.date===date && r.person===person && r.group===group));
+  saveRecords();
+  renderOutput();
+}
+
+function aggregate() {
+  // 汇总：日期 + 人名 + 组别，并合并明细（数量累加、勾选合并）
+  const map = new Map();
+  for (const r of records) {
+    const key = `${r.date}__${r.person}__${r.group}`;
+    const cur = map.get(key) || { key, date:r.date, person:r.person, group:r.group, wage:0, tip:0, detail:{} };
+    cur.wage += Number(r.wage) || 0;
+    cur.tip  += Number(r.tip)  || 0;
+
+    (r.items || []).forEach(it => {
+      if (!it || !it.name) return;
+      const name = it.name;
+      if (it.kind === "extra2") {
+        const prev = cur.detail[name] || { wage:0, tip:0 };
+        const w = Number(it.qty?.wage) || 0;
+        const t = Number(it.qty?.tip) || 0;
+        cur.detail[name] = { wage: (Number(prev.wage)||0) + w, tip: (Number(prev.tip)||0) + t };
+      } else if (it.kind === "num") {
+        cur.detail[name] = (cur.detail[name] || 0) + (Number(it.qty) || 0);
+      } else {
+        // check：只需要显示一次
+        cur.detail[name] = cur.detail[name] || 1;
+      }
+    });
+
+    map.set(key, cur);
+  }
+
+  return Array.from(map.values()).sort((a,b)=>(a.date+a.person+a.group).localeCompare(b.date+b.person+b.group,"zh-CN"));
+}
+
+function detailText(detailObj) {
+  const entries = Object.entries(detailObj || {});
+  if (entries.length === 0) return "";
+  entries.sort((a,b)=>{
+    if (a[0]==="额外金额") return 1;
+    if (b[0]==="额外金额") return -1;
+    return a[0].localeCompare(b[0],"zh-CN");
+  });
+  const parts = [];
+  for (const [name, val] of entries) {
+    const v = Number(val) || 0;
+    if (name === "额外金额") {
+      if (val && typeof val === 'object') {
+        const w = Number(val.wage) || 0;
+        const t = Number(val.tip) || 0;
+        parts.push(`额外金额工资${w.toFixed(2)}小费${t.toFixed(2)}`);
+      } else {
+        const vv = Number(val) || 0;
+        parts.push(`${abbr(name)}+${vv.toFixed(2)}`);
+      }
+      continue;
+    }
+    // 数量类：显示“8补餐具”这种
+    if (v > 1 && (PER_TABLE_PROJECTS.has(name) || name==="擦工作柜+打印机柜+柜体" || name==="擦料台")) {
+      parts.push(`${v}${abbr(name)}`);
+      continue;
+    }
+    // 其它如果累计次数>1，也显示次数
+    if (v > 1) {
+      parts.push(`${v}${abbr(name)}`);
+      continue;
+    }
+    // 勾选类：只显示缩写
+    parts.push(abbr(name));
+  }
+  return parts.join("，");
+}
+
+function renderOutput() {
+  const outRows = aggregate();
+  const tb = $("out");
+  tb.innerHTML = "";
+  outRows.forEach(r => {
+    const tr = document.createElement("tr");
+    tr.setAttribute("data-person", r.person);
+    const btn = `<button class="delbtn" title="删除这一条" onclick="deleteOne('${r.key}')">×</button>`;
+    tr.innerHTML =
+      `<td>${r.date}</td>
+       <td>${escapeHTML(r.person)}</td>
+       <td>${r.group}</td>
+       <td class="right">${r.wage.toFixed(2)}</td>
+       <td class="right">${r.tip.toFixed(2)}</td>
+       <td>${escapeHTML(detailText(r.detail))}</td>
+       <td class="right">${btn}</td>`;
+    tb.appendChild(tr);
+  });
+  renderGroupTotals(outRows);
+}
+
+function renderGroupTotals(outRows) {
+  const body = document.getElementById('groupTotalsBody');
+  if (!body) return;
+  const groups = ['A','B','C','D'];
+  const totals = { A:{w:0,t:0}, B:{w:0,t:0}, C:{w:0,t:0}, D:{w:0,t:0} };
+  let gw=0, gt=0;
+  (outRows || []).forEach(r => {
+    const g = r.group;
+    if (!totals[g]) totals[g] = {w:0,t:0};
+    totals[g].w += Number(r.wage) || 0;
+    totals[g].t += Number(r.tip) || 0;
+  });
+  body.innerHTML = '';
+  groups.forEach(g => {
+    gw += totals[g].w; gt += totals[g].t;
+    const tr = document.createElement('tr');
+    const total = totals[g].w + totals[g].t;
+    tr.innerHTML = `<td>${g}组</td>`
+      + `<td class="right mono">${totals[g].w.toFixed(2)}</td>`
+      + `<td class="right mono">${totals[g].t.toFixed(2)}</td>`
+      + `<td class="right"><div class="mono">${total.toFixed(2)}</div><div class="small mono">工资${totals[g].w.toFixed(2)} 小费${totals[g].t.toFixed(2)}</div></td>`;
+    body.appendChild(tr);
+  });
+  const grandWage = document.getElementById('grandPunch'); // id 保持不改（避免改HTML）
+  const grandTip = document.getElementById('grandCash');
+  if (grandWage) grandWage.textContent = gw.toFixed(2);
+  if (grandTip) grandTip.textContent = gt.toFixed(2);
+  const grandAll = document.getElementById('grandAll');
+  if (grandAll) grandAll.textContent = (gw+gt).toFixed(2);
+
+  // 当日4组总计（工资/小费/合计）
+  const dates = Array.from(new Set((outRows||[]).map(r=>r.date)));
+  const label = document.getElementById('dailyLabel');
+  const dw = document.getElementById('dailyWage');
+  const dt = document.getElementById('dailyTip');
+  const da = document.getElementById('dailyAll');
+  if (label) label.textContent = (dates.length===1 ? `${formatDateForName(dates[0])} 总计` : "总计");
+  if (dw) dw.textContent = gw.toFixed(2);
+  if (dt) dt.textContent = gt.toFixed(2);
+  if (da) da.textContent = (gw+gt).toFixed(2);
+}
+
+
+function formatDateForName(dstr){
+  // dstr: YYYY-MM-DD -> YYYY-M-D (去掉前导0)
+  const m = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(String(dstr||""));
+  if(!m) return String(dstr||"");
+  const y = m[1], mo = String(parseInt(m[2],10)), da = String(parseInt(m[3],10));
+  return `${y}-${mo}-${da}`;
+}
+
+// 三字缩写（可继续自己改）
+const ABBR = {
+  "补杯子":"补杯子",
+  "滤网清洁":"滤网清",
+  "补筷子/小碗/碟子/勺子":"补餐具",
+  "踢脚线/沙发缝/抬电磁炉":"踢脚线",
+  "补细节":"补细节",
+  "擦Ipad和充电，擦账单夹":"擦IPD",
+  "擦大桌菜架":"大桌架",
+  "擦工作柜+打印机柜+柜体":"工作柜",
+  "擦特定墙面":"特定墙",
+  "擦水柜/冰桶/冰箱（倒垃圾和清面箱）":"水柜冰",
+  "擦料台":"料台清",
+  "宝宝椅清洁":"宝宝椅",
+  "补冰淇淋+生日车清洁+生日柜整理+墙面+灯牌充电":"生日柜",
+  "补高柜":"高柜补",
+  "额外金额":"额外金"
+};
+function abbr(name){
+  const raw = String(name||"").trim();
+  // 定向修正显示名称
+  if (raw.startsWith("擦Ipad") || raw.startsWith("擦Ipa")) return "擦Ipad";
+  if (raw.startsWith("擦大桌菜")) return "大桌菜架";
+  if (raw.startsWith("宝宝椅清")) return "宝宝椅";
+  // 默认规则：取分隔符前 + 最多4字
+  const first = raw.split(/[\/\+（(，,]/)[0].trim();
+  return first.length > 4 ? first.slice(0,4) : first;
+}
+
+function exportCSV() {
+  const outRows = aggregate();
+  if (outRows.length === 0) return alert("没有数据可导出");
+
+  // 计算各组小计与总计（从汇总行计算）
+  const groups = ["A","B","C","D"];
+  const gt = { A:{w:0,t:0}, B:{w:0,t:0}, C:{w:0,t:0}, D:{w:0,t:0} };
+  let totalW = 0, totalT = 0;
+
+  outRows.forEach(r => {
+    const g = r.group;
+    if (!gt[g]) gt[g] = {w:0,t:0};
+    gt[g].w += Number(r.wage) || 0;
+    gt[g].t += Number(r.tip)  || 0;
+    totalW  += Number(r.wage) || 0;
+    totalT  += Number(r.tip)  || 0;
+  });
+
+  // 文件名：日期+汇总.csv（如果导出包含多天，则用当前选择日期）
+  const dates = Array.from(new Set(outRows.map(r=>r.date)));
+  const baseDate = (dates.length===1 ? dates[0] : document.getElementById('date')?.value);
+
+  // 统一列：让内容更整齐
+  const header = ["类型","日期","人名","组别","工资","小费","合计","明细"];
+  const lines = [header.map(csvCell).join(",")];
+
+  // 1) 汇总明细
+  outRows.forEach(r => {
+    lines.push([
+      "汇总",
+      r.date,
+      r.person,
+      r.group,
+      r.wage.toFixed(2),
+      r.tip.toFixed(2),
+      (r.wage + r.tip).toFixed(2),
+      detailText(r.detail)
+    ].map(csvCell).join(","));
+  });
+
+  // 空一行分隔
+  lines.push("");
+
+  // 2) 各组小计
+  groups.forEach(g => {
+    lines.push([
+      "各组小计",
+      (dates.length===1 ? dates[0] : ""),
+      "",
+      `${g}组`,
+      gt[g].w.toFixed(2),
+      gt[g].t.toFixed(2),
+      (gt[g].w + gt[g].t).toFixed(2),
+      ""
+    ].map(csvCell).join(","));
+  });
+
+  // 3) 总计（四组合计）
+  lines.push([
+    "总计",
+    (dates.length===1 ? dates[0] : ""),
+    "",
+    "全部",
+    totalW.toFixed(2),
+    totalT.toFixed(2),
+    (totalW + totalT).toFixed(2),
+    ""
+  ].map(csvCell).join(","));
+
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${formatDateForName(baseDate)}汇总.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+function csvCell(x) {
+  const s = String(x ?? "");
+  if (/[,"\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+  return s;
+}
+
+function normalizeName(s){ return String(s||"").trim().toLowerCase(); }
+
+function clearPersonSearch(){
+  const inp = document.getElementById("personSearch");
+  if (inp) inp.value = "";
+  document.querySelectorAll("#out tr.hlrow").forEach(tr=>tr.classList.remove("hlrow"));
+  document.querySelectorAll("#out td.hlcell").forEach(td=>td.classList.remove("hlcell"));
+}
+
+function locatePerson(){
+  const inp = document.getElementById("personSearch");
+  const q = normalizeName(inp ? inp.value : "");
+  if (!q) return alert("请输入要搜索的人名");
+
+  // 清掉旧高亮（不清空输入）
+  document.querySelectorAll("#out tr.hlrow").forEach(tr=>tr.classList.remove("hlrow"));
+  document.querySelectorAll("#out td.hlcell").forEach(td=>td.classList.remove("hlcell"));
+
+  const rows = Array.from(document.querySelectorAll("#out tr"));
+  const hit = rows.find(tr => normalizeName(tr.getAttribute("data-person")).includes(q));
+  if (!hit) return alert("没找到该人名（请检查拼写或先添加记录）");
+
+  hit.classList.add("hlrow");
+  const tds = hit.querySelectorAll("td");
+  if (tds && tds.length >= 2) tds[1].classList.add("hlcell");
+
+  // 在右侧汇总区域内部滚动定位
+  const scroller = document.getElementById("rightCol");
+  if (scroller){
+    const r = hit.getBoundingClientRect();
+    const sr = scroller.getBoundingClientRect();
+    scroller.scrollTop += (r.top - sr.top - 120);
+  } else {
+    hit.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+
+  setTimeout(()=>{ hit.classList.remove("hlrow"); }, 3500);
+}
+
+
+function resetInlineLayoutStyles(){
+  // 防止之前打开过 ?view=summary 留下的 inline 样式影响正常视图
+  const left = document.getElementById('leftCol');
+  const right = document.getElementById('rightCol');
+  const cont = document.querySelector('.container');
+  if (left) left.style.cssText = '';
+  if (right) right.style.cssText = '';
+  if (cont) cont.style.cssText = '';
+  document.body.style.cssText = '';
+}
+
+function setTheme(mode){
+  // mode: 'light' | 'dark'
+  const root = document.documentElement;
+  if (mode === 'dark') root.setAttribute('data-theme','dark');
+  else root.setAttribute('data-theme','light');
+  try{ localStorage.setItem('ui_theme', mode); }catch{}
+  const btn = document.getElementById('themeBtn');
+  if (btn) btn.textContent = (mode === 'dark' ? '日间' : '夜间');
+}
+function getTheme(){
+  const v = (localStorage.getItem('ui_theme') || 'light');
+  return (v === 'dark') ? 'dark' : 'light';
+}
+function toggleTheme(){
+  setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+}
+
+// 字号预设（小/中/大）
+function setFontPreset(preset){
+  const map = { s:16, m:18, l:20 };
+  const px = map[preset] ?? 18;
+  applyFontSize(px);
+  try{ localStorage.setItem('ui_font_preset', preset); }catch{}
+}
+function getFontPreset(){
+  const p = localStorage.getItem('ui_font_preset') || 'm';
+  return (p==='s'||p==='m'||p==='l') ? p : 'm';
+}
+
+function openSummaryView(){
+  // 打开只读汇总视图（同一文件，不需要新部署）
+  const url = new URL(window.location.href);
+  url.searchParams.set('view','summary');
+  window.open(url.toString(), '_blank');
+}
+
+function applyFontSize(px){
+  // 基础字号
+  document.documentElement.style.setProperty('--ui-font', px + 'px');
+  // 派生字号（让所有区域跟着一起变）
+  const h1 = Math.round(px * 1.45);
+  const cardtitle = Math.round(px * 0.95);
+  const small = Math.max(11, Math.round(px * 0.67));
+  const pname = Math.round(px * 0.90);
+  const table = Math.round(px * 0.83);
+  const btn = Math.round(px * 0.85);
+
+  document.documentElement.style.setProperty('--ui-h1', h1 + 'px');
+  document.documentElement.style.setProperty('--ui-cardtitle', cardtitle + 'px');
+  document.documentElement.style.setProperty('--ui-small', small + 'px');
+  document.documentElement.style.setProperty('--ui-pname', pname + 'px');
+  document.documentElement.style.setProperty('--ui-table', table + 'px');
+  document.documentElement.style.setProperty('--ui-btn', btn + 'px');
+
+  try { localStorage.setItem('ui_font_px', px); } catch {}
+}
+function getFontSize(){
+  // 优先使用预设
+  const preset = getFontPreset();
+  const map = { s:16, m:18, l:20 };
+  const presetPx = map[preset] ?? 18;
+
+  const v = parseInt(localStorage.getItem('ui_font_px') || String(presetPx), 10);
+  return isNaN(v) ? presetPx : Math.min(26, Math.max(14, v));
+}
+function fontLarger(){
+  applyFontSize(getFontSize() + 1);
+}
+function fontSmaller(){
+  applyFontSize(getFontSize() - 1);
+}
+function fontReset(){
+  applyFontSize(18);
+}
+
+function init() {
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth()+1).padStart(2,"0");
+  const d = String(today.getDate()).padStart(2,"0");
+  $("date").value = `${y}-${m}-${d}`;
+
+  setTheme(getTheme());
+  // 如果用户没有手动调整过字号，则用预设
+  applyFontSize(getFontSize());
+  loadRecords();
+
+  // 只读汇总视图（管理用）：隐藏左侧输入区，禁止编辑，仅展示汇总/小计/导出
+  const sp = new URLSearchParams(window.location.search);
+  const isSummaryView = sp.get('view') === 'summary';
+  if (isSummaryView){
+    document.documentElement.classList.add('summaryOnly');
+    document.querySelectorAll('.stickybar').forEach(el=>el.style.display='none');
+  } else {
+    document.documentElement.classList.remove('summaryOnly');
+    // 确保电脑端正常双栏显示（避免出现左侧空白）
+    const left = document.getElementById('leftCol');
+    const right = document.getElementById('rightCol');
+    if (left) left.style.display = '';
+    if (right) right.style.display = '';
+  }
+
+  render();
+  renderOutput();
+
+  document.querySelectorAll("input,select").forEach(x => x.addEventListener("change", () => {
+    render();
+  }));
+
+  const ps = document.getElementById('personSearch');
+  if (ps){
+    ps.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); locatePerson(); } });
+  }
+}
+
+init();
+
+</script></body>
+</html>
